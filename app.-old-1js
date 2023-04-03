@@ -1,0 +1,20 @@
+// Elements
+const mainEl = document.querySelector(".main");
+const sectionReplyEl = document.querySelector(".reply-container");
+
+// const commentContainer = document.querySelectorAll(".comment__container");
+
+/* Get Data From Sample API */
+const getCommentsData = fetch("./data.json")
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((error) => console.log(error));
+
+const getComments = async () => {
+  const comments = await getCommentsData;
+  console.log(comments);
+};
+
+getComments();

@@ -126,6 +126,10 @@ main > .comment__reply {
       color: var(--grayish-blue);
       //   font-weight: var(--fw-500);
     }
+
+    &-userid {
+      display: none;
+    }
   }
 
   &__content {

@@ -1,4 +1,4 @@
-// TODO: DELETE FUNCTION
+// TODO: UPDATE FUNCTION
 
 // Elements
 const mainEl = document.querySelector(".main");
@@ -37,12 +37,12 @@ const commentData = function (data) {
 const renderCurrentComments = function (data) {
   console.log(data);
 
-  data.comments.map(({ content, createdAt, user, score, replies } = comments) => {
+  data.comments.map(({ id, content, createdAt, user, score, replies } = comments) => {
     let repCount = false;
     if (replies.length < 1) {
-      createCommentEl(content, createdAt, user, score, (repCount = false));
+      createCommentEl(id, content, createdAt, user, score, (repCount = false));
     } else {
-      createCommentEl(content, createdAt, user, score, (repCount = true), replies);
+      createCommentEl(id, content, createdAt, user, score, (repCount = true), replies);
       // console.log(mainUserComment, replies);
       // replies.map(({ content, createdAt, user, score, replyingTo } = rep) => {
       //   console.log(replyingTo);
@@ -69,8 +69,6 @@ const renderCurrentComments = function (data) {
 </div>
 </div
 
-
-
 `;
 
   // For Main Reply Comment Only
@@ -96,14 +94,15 @@ const renderCurrentComments = function (data) {
     mainEl.innerHTML = "";
     renderCurrentComments(commentDataArr[0]);
   });
-  currentUserComment();
-  deleteComment();
   appendReplyEl();
+  currentUserComment();
+
+  deleteComment();
   // replyCommentEl(mainEl);
 };
 
 /* Create Element */
-const createCommentEl = function (getContent, getCreatedAt, getUser, getScore, getRepCount = false, reply) {
+const createCommentEl = function (getID, getContent, getCreatedAt, getUser, getScore, getRepCount = false, reply) {
   const haveReplies = getRepCount === true ? "have__replies" : "no__replies";
   //   console.log(haveReplies);
 
@@ -118,6 +117,7 @@ const createCommentEl = function (getContent, getCreatedAt, getUser, getScore, g
                     />
                     <p class="comment__header-username">${getUser.username}</p>
                     <p class="comment__header-posted-time">${getCreatedAt}</p>
+                    <p class="comment__header-userid">${getID}</p>
                   </div>
                   <p class="comment__content">
               ${getContent}
@@ -190,7 +190,8 @@ const createReplyCommentEl = function (reply) {
     return "";
   } else {
     return reply
-      .map(({ content, createdAt, user, score } = rep) => {
+      .map(({ id, content, createdAt, user, score } = rep) => {
+        // console.log(id);
         return `
     <section class="reply-container">
              <div class="comment">
@@ -202,6 +203,7 @@ const createReplyCommentEl = function (reply) {
                        />
                        <p class="comment__header-username">${user.username}</p>
                        <p class="comment__header-posted-time">${createdAt}</p>
+                       <p class="comment__header-userid">${id}</p>
                      </div>
                      <p class="comment__content">
                  ${content}
@@ -336,7 +338,7 @@ const appendReplyEl = function () {
     e.addEventListener("click", () => {
       const mainThread = e.closest(".comment__container");
       let parentAppend = "";
-      console.log(e.parentElement.parentElement.parentElement);
+      // console.log(e.parentElement.parentElement.parentElement);
       const username = "@" + e.parentElement.parentElement.parentElement.querySelector(".comment__header .comment__header-username").textContent + " ";
       if (e.parentElement.parentElement.parentElement.parentElement.className !== "reply-container") {
         parentAppend = e.closest(".comment__container").querySelector(".reply__input");
@@ -456,7 +458,7 @@ const currentUserComment = function () {
     }
   });
 
-  console.log(comment);
+  // console.log(comment);
 };
 
 // Delete Function
@@ -464,18 +466,62 @@ const deleteComment = function () {
   const delEl = document.querySelectorAll(".js__delete-btn");
   delEl.forEach((e) => {
     e.addEventListener("click", () => {
+      // console.log("Hello");
+
       document.querySelector(".wrapper").classList.add("show-modal");
       disableScroll();
       const confirmYesDel = document.querySelector(".modal__confirmation-delete ");
       const confirmNoDel = document.querySelector(".modal__confirmation-cancel ");
+
       confirmYesDel.addEventListener("click", () => {
-        console.log("Deleted"); // TODO: Delete from Object
         document.querySelector(".wrapper").classList.remove("show-modal");
+
+        if (e.parentElement.parentElement.parentElement.parentElement.className !== "reply-container") {
+          const userid = e.parentElement.parentElement.parentElement.parentElement.querySelector(".comment .comment__header .comment__header-userid").textContent;
+          console.log(userid);
+          const deleteRecord = commentDataArr[0].comments.filter((record) => {
+            return record.id === +userid;
+          });
+
+          console.log(deleteRecord[0].id);
+          commentDataArr[0].comments.splice(
+            commentDataArr[0].comments.findIndex((del) => del.id === deleteRecord[0].id),
+            1
+          );
+        } else {
+          const userid = e.parentElement.parentElement.parentElement.parentElement.querySelector(".comment .comment__header .comment__header-userid").textContent;
+          const parentid = e.parentElement.closest(".comment__container").querySelector(".comment .comment__header .comment__header-userid").textContent;
+
+          const deleteRecord = commentDataArr[0].comments.filter((record) => {
+            return record.id === +parentid;
+          });
+
+          const deleteRecordIndex = commentDataArr[0].comments.findIndex((record) => {
+            return record.id === +parentid;
+          });
+
+          const deleteRecordChild = deleteRecord[0].replies.filter((rep) => {
+            return rep.id === +userid;
+          });
+
+          // const x = commentDataArr[0].comments.filter((c) => c.id === +parentid);
+
+          commentDataArr[0].comments[deleteRecordIndex].replies.splice(
+            commentDataArr[0].comments[deleteRecordIndex].replies.findIndex((del) => del.id === deleteRecordChild[0].id),
+            1
+          );
+
+          console.log(commentDataArr[0]);
+        }
+
+        mainEl.innerHTML = "";
+        renderCurrentComments(commentDataArr[0]);
+        enableScroll();
       });
 
       confirmNoDel.addEventListener("click", () => {
-        console.log("Cancelled");
         document.querySelector(".wrapper").classList.remove("show-modal");
+        console.log("Cancelled");
         enableScroll();
         return;
       });

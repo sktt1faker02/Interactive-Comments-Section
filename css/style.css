@@ -105,6 +105,9 @@ main {
 .comment__header-posted-time {
   color: var(--grayish-blue);
 }
+.comment__header-userid {
+  display: none;
+}
 .comment__content {
   color: var(--grayish-blue);
   line-height: 1.5;

@@ -324,3 +324,26 @@ main > .comment__reply {
 .show-modal {
   display: flex;
 }
+
+// Responsive
+
+@media (min-width: 768px) {
+  body {
+  }
+
+  .comment {
+    display: grid;
+
+    &__footer {
+      order: -1;
+      align-items: initial;
+      &-vote {
+        flex-direction: column;
+      }
+    }
+  }
+
+  .crud-buttons {
+    display: unset;
+  }
+}

@@ -98,6 +98,7 @@ const renderCurrentComments = function (data) {
   currentUserComment();
 
   deleteComment();
+  editComment();
   // replyCommentEl(mainEl);
 };
 
@@ -529,8 +530,17 @@ const deleteComment = function () {
   });
 };
 
-// Call Modal
+// Edit Function
+const editComment = function () {
+  const editEl = document.querySelectorAll(".js__edit-btn");
+  editEl.forEach((e) => {
+    e.addEventListener("click", () => {
+      console.log("Edit");
+    });
+  });
+};
 
+// For scroll disable or enable
 function disableScroll() {
   document.body.style.overflow = "hidden";
 }

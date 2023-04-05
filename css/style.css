@@ -276,4 +276,20 @@ main {
 
 .show-modal {
   display: flex;
+}
+
+@media (min-width: 768px) {
+  .comment {
+    display: grid;
+  }
+  .comment__footer {
+    order: -1;
+    align-items: initial;
+  }
+  .comment__footer-vote {
+    flex-direction: column;
+  }
+  .crud-buttons {
+    display: unset;
+  }
 }/*# sourceMappingURL=style.css.map */

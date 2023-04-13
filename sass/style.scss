@@ -331,19 +331,44 @@ main > .comment__reply {
   body {
   }
 
-  .comment {
-    display: grid;
+  // .comment {
+  //   display: grid;
 
-    &__footer {
-      order: -1;
-      align-items: initial;
-      &-vote {
-        flex-direction: column;
-      }
-    }
-  }
+  //   &__footer {
+  //     order: -1;
+  //     align-items: initial;
+  //     &-vote {
+  //       flex-direction: column;
+  //     }
+  //   }
+  // }
 
-  .crud-buttons {
-    display: unset;
-  }
+  // .crud-buttons {
+  //   display: unset;
+  // }
 }
+
+// New Layout for desktop
+
+// .comment {
+//   flex-direction: row;
+// }
+
+// .comment__header {
+//   flex-direction: column;
+//   align-items: flex-start;
+// }
+// .comment__header-content {
+//   display: flex;
+//   align-items: center;
+//   gap: 1rem;
+// }
+
+// .comment__footer-vote {
+//   align-self: flex-start;
+//   flex-direction: column;
+// }
+
+// .crud-buttons {
+//   align-self: flex-start;
+// }

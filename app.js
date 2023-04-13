@@ -1,10 +1,14 @@
-// TODO: UPDATE FUNCTION
+// TODO: UPDATE FUNCTION FOR CHILD COMMENTS
 
 // Elements
 const mainEl = document.querySelector(".main");
 const sectionReplyEl = document.querySelector(".reply-container");
 
 // const commentContainer = document.querySelectorAll(".comment__container");
+
+/* Clone the Data */
+let commentDataArr = [];
+let newcommentDataArr;
 
 /* Get Data From Sample API */
 const getCommentsData = fetch("./data.json")
@@ -16,20 +20,25 @@ const getCommentsData = fetch("./data.json")
 
 const getComments = async () => {
   const comments = await getCommentsData;
-  //   comments.comments.map((data) => renderCurrentComments(data));
 
   commentData(comments);
-  // sampleInsert(comments);
 };
 
 getComments();
 
-/* Clone the Data */
-let commentDataArr = [];
+// if (localStorage.getItem("commentDataArr")) {
+//   commentDataArr = JSON.parse(localStorage.getItem("commentDataArr"));
+// }
+
 const commentData = function (data) {
-  commentDataArr.push(data);
-  console.log(commentDataArr);
-  renderCurrentComments(commentDataArr[0]);
+  if (localStorage.getItem("commentDataArr")) {
+    commentDataArr = JSON.parse(localStorage.getItem("commentDataArr"));
+    renderCurrentComments(commentDataArr[0]);
+  } else {
+    commentDataArr.push(data);
+    localStorage.setItem("commentDataArr", JSON.stringify(commentDataArr));
+    renderCurrentComments(commentDataArr[0]);
+  }
 };
 
 // Render Current Comments
@@ -93,6 +102,7 @@ const renderCurrentComments = function (data) {
     commentDataArr[0].comments.push(replyObj);
     mainEl.innerHTML = "";
     renderCurrentComments(commentDataArr[0]);
+    localStorage.setItem("commentDataArr", JSON.stringify(commentDataArr));
   });
   appendReplyEl();
   currentUserComment();
@@ -440,6 +450,7 @@ const insertReply = function (data, comments, replyingTo, threadStarter) {
   mainEl.innerHTML = "";
 
   renderCurrentComments(commentDataArr[0]);
+  localStorage.setItem("commentDataArr", JSON.stringify(commentDataArr));
   // currentUserComment();
 };
 
@@ -467,6 +478,13 @@ const deleteComment = function () {
   const delEl = document.querySelectorAll(".js__delete-btn");
   delEl.forEach((e) => {
     e.addEventListener("click", () => {
+      // For Cancel Event
+      if (e.innerText === "Cancel") {
+        mainEl.innerHTML = "";
+        renderCurrentComments(commentDataArr[0]);
+        return;
+      }
+
       // console.log("Hello");
 
       document.querySelector(".wrapper").classList.add("show-modal");
@@ -517,6 +535,7 @@ const deleteComment = function () {
 
         mainEl.innerHTML = "";
         renderCurrentComments(commentDataArr[0]);
+        localStorage.setItem("commentDataArr", JSON.stringify(commentDataArr));
         enableScroll();
       });
 
@@ -535,7 +554,60 @@ const editComment = function () {
   const editEl = document.querySelectorAll(".js__edit-btn");
   editEl.forEach((e) => {
     e.addEventListener("click", () => {
-      console.log("Edit");
+      let newComment = "";
+
+      if (e.innerText === "Update") {
+        newComment = e.parentElement.parentElement.parentElement.querySelector(".comment__reply-text").value;
+
+        if (e.parentElement.parentElement.parentElement.parentElement.className !== "reply-container") {
+          const userid = e.parentElement.parentElement.parentElement.parentElement.querySelector(".comment .comment__header .comment__header-userid").textContent;
+          console.log(userid);
+          const deleteRecord = commentDataArr[0].comments.find((record) => {
+            return record.id === +userid;
+          });
+          deleteRecord.content = newComment;
+          mainEl.innerHTML = "";
+          renderCurrentComments(commentDataArr[0]);
+          localStorage.setItem("commentDataArr", JSON.stringify(commentDataArr));
+        } else {
+          const userid = e.parentElement.parentElement.parentElement.parentElement.querySelector(".comment .comment__header .comment__header-userid").textContent;
+          console.log(userid);
+
+          const parentid = e.parentElement.closest(".comment__container").querySelector(".comment .comment__header .comment__header-userid").textContent;
+
+          const deleteRecord = commentDataArr[0].comments.find((record) => {
+            return record.id === +parentid;
+          });
+
+          const deleteRecordChild = deleteRecord.replies.find((record) => {
+            return record.id === +userid;
+          });
+
+          deleteRecordChild.content = newComment;
+          mainEl.innerHTML = "";
+          renderCurrentComments(commentDataArr[0]);
+          localStorage.setItem("commentDataArr", JSON.stringify(commentDataArr));
+        }
+        return;
+      }
+
+      const commentParent = e.parentElement.parentElement.parentElement.querySelector(".comment__header");
+      const commentTxtOld = e.parentElement.parentElement.parentElement.querySelector(".comment__content").innerText;
+
+      console.log(commentTxtOld);
+      e.parentElement.parentElement.parentElement.querySelector(".comment__content").remove();
+
+      const replyTextarea = document.createElement("textarea");
+      replyTextarea.classList.add("comment__reply-text");
+      replyTextarea.setAttribute("type", "text");
+      replyTextarea.setAttribute("placeholder", "Add a comment...");
+      commentParent.insertAdjacentElement("afterend", replyTextarea);
+      replyTextarea.innerText = commentTxtOld;
+      replyTextarea.selectionStart = replyTextarea.value.length;
+      replyTextarea.selectionEnd = replyTextarea.value.length;
+      replyTextarea.focus();
+      e.innerText = "Update";
+      e.parentElement.querySelector(".js__delete-btn").innerText = "Cancel";
     });
   });
 };
